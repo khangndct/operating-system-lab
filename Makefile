@@ -200,6 +200,8 @@ UPROGS=\
 	$U/_sleep\
 	$U/_cp\
 	$U/_tree\
+	$U/_du\
+	$U/_diff\
 
 
 

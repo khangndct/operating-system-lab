@@ -91,10 +91,11 @@ void tree (char* path, int cur_level, char* is_last) {
 int main(int argc, char** argv) {
     int cnt = argc-1;
     bool used_argument[cnt];
+    memset(used_argument, 0, cnt);
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
             DIRONLY = 1;
-            used_argument[i-1] = true;
+            used_argument[i-1] = 1;
             cnt--;
             break;
         }
@@ -108,7 +109,7 @@ int main(int argc, char** argv) {
                 }
             }
             LEVEL = atoi(argv[i+1]);
-            used_argument[i-1] = used_argument[i] = true;
+            used_argument[i-1] = used_argument[i] = 1;
             cnt -= 2;
             break;
         }
@@ -118,7 +119,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
     if (cnt < 1) {
-        printf("tree: missing argument of directory");
+        printf("tree: missing path argument");
         exit(1);
     }
 
