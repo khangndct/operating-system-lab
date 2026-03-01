@@ -2,11 +2,11 @@
 #include "user/user.h"
 #include "kernel/fcntl.h"
 
-char buffer[1];
+char buffer[100];
 
 int main(int argc, char** argv) {
     if (argc != 3) {
-        printf("usage: cp src dst");
+        printf("usage: cp src dst\n");
         exit(1);
     }
 
