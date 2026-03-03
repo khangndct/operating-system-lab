@@ -2,31 +2,35 @@
 #include "user/user.h"
 
 int main() {
-    int fd[2];
-    char buffer[10];
-    pipe(fd);
+    int fd1[2];
+    int fd2[2];
+    char buf[1];
+    pipe(fd1);
+    pipe(fd2);
 
-    if (fork() == 0) {
-        // child
+    if (fork() == 0) { // child
         int child_pid = getpid();
-        read(fd[0], buffer, sizeof(buffer));
-        printf("%d: receive %s\n", child_pid, buffer);
-
-        write(fd[1], "pong", 4);
-
-        sleep(1);
+        close(fd1[1]); // close write of fd1
+        close(fd2[0]); // close read of fd2
+        read(fd1[0], buf, 1);
+        if (buf[0] == 'o') {
+            printf("%d: received ping\n", child_pid);
+            write(fd2[1], "o", 1);
+        }
+        close(fd1[0]);
+        close(fd2[1]);
     }
-    else {
-        // parent
+    else { // parent
         int parent_pid = getpid();
-        write(fd[1], "ping", 4);
-
-        sleep(1);
-        read(fd[0], buffer, sizeof(buffer));
-        printf("%d: receive %s\n", parent_pid, buffer);        
+        close(fd1[0]); // close read of fd1
+        close(fd2[1]); // close write of fd2
+        write(fd1[1], "o", 1);
+        read(fd2[0], buf, 1);
+        if (buf[0] == 'o')
+            printf("%d: received pong\n", parent_pid);
+        close(fd1[1]);
+        close(fd2[0]);
+        wait(0);
     }
-
-    close(fd[0]);
-    close(fd[1]);
     exit(0);
 }

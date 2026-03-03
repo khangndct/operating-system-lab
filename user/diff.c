@@ -16,7 +16,8 @@ char* fmtname (char* path) {
 void strip_tail(char* str, char* delimiter) {
     if (!strlen(str)) return;
     char* p = str+strlen(str)-1;
-    *p = '\0';
+    if (*p == '\n')
+        *p = '\0';
 }
 
 int readline(int fd, char *buf, int max) {

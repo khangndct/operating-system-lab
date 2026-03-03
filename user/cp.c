@@ -2,7 +2,7 @@
 #include "user/user.h"
 #include "kernel/fcntl.h"
 
-char buffer[100];
+char buffer[512];
 
 int main(int argc, char** argv) {
     if (argc != 3) {
@@ -16,6 +16,7 @@ int main(int argc, char** argv) {
         exit(1);
     }
     if ((fd[1] = open(argv[2], O_CREATE|O_WRONLY)) < 0) {
+        close(fd[0]);
         printf("cp: error while open/create %s\n", argv[2]);
         exit(1);
     }
