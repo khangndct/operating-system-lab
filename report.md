@@ -51,13 +51,21 @@
 - Sử dụng hàm đệ quy `tree()` để duyệt qua cấu trúc cây thư mục, bắt đầu từ đường dẫn do người dùng chỉ định thông qua tham số dòng lệnh.
 - Sử dụng một mảng `is_last` để xác định đã đi tới nhánh cuối cùng chưa tại mỗi cấp độ, từ đó in ra các ký tự nối nhánh (`├───` hoặc `└───`) một cách chính xác.
 - Xử lý tùy chọn: Triển khai các biến toàn cục `DIRONLY` (cho `-d`) và `LEVEL` (cho `-L`) để điều hướng logic duyệt: bỏ qua tệp tin hoặc dừng đệ quy khi đạt độ sâu giới hạn.
-- Sử dụng hệ thống gọi `fstat()` để phân biệt giữa tệp tin (`T_FILE`) và thư mục (`T_DIR`) nhằm thực hiện các hành động tương ứng.
+- Sử dụng system call `fstat()` để phân biệt giữa tệp tin (`T_FILE`) và thư mục (`T_DIR`) nhằm thực hiện các hành động tương ứng.
 - Quản lý bộ nhớ động: Sử dụng `malloc` và `free` để lưu trữ tạm thời danh sách tên các tệp tin trong thư mục, giúp xác định chính xác phần tử cuối cùng để in định dạng `└───`.
 ## Vấn đề gặp phải
 - Đệ quy vô hạn: do mỗi thư mục điều chứa 2 thư mục con là `./` và `../`, nếu không kiểm tra và loại bỏ 2 thư mục này, chương trình có thể đệ quy từ thư mục hiện tại tới chính nó hoặc tới thư mục cha của nó, dẫn tới tình trạng đệ quy vô hạn.
 # 6. du
 ## Giải pháp
-
+- Sử dụng hàm đệ quy `size_of()` để duyệt qua cây thư mục, bắt đầu từ đường dẫn do người dùng chỉ định thông qua tham số dòng lệnh.
+- Trong quá trình đệ quy, sử dụng system call `fstat()` để phân biệt giữa file(`T_FILE`) và thư mục (`T_DIR`).
+- Nếu thực thể là file (`T_FILE`) thì trả về kích thước của file bằng property `size` của system call `fstat()`. Ngược lại, nếu thực thể là thư mục (`T_DIR`) thì tiếp tục đệ quy vào bên trong để duyệt tiếp các thực thể con bên trong thư mục, và kích thước thư mục được tính bằng cách cộng dồn kích thước của các thực thể con.
+- Xử lý tùy chọn: Triển  khai các biến toàn cục `S_FLAG` (cho `-s`) và `A_FLAG` (cho `-a`) để điều hướng logic chương trình: chỉ in ra kích thước của thư mục gốc hoặc in ra kích thước của cả thư mục và file (mặc định chỉ in kích thước của thư mục).
+## Vấn đề gặp phải
+- Đệ quy vô hạn: giống như chương trình tree, ta phải tránh 2 thư mục con là `./` và `../` để tránh đệ quy vô hạn.
 
 # 7. diff
 ## Giải pháp 
+- Cơ chế so sánh: Chương trình thực hiện so sánh hai tệp tin theo từng dòng bằng cách sử dụng hàm tự định nghĩa `readline()` để đọc dữ liệu từ File Descriptor cho đến khi gặp ký tự xuống dòng `\n` hoặc kết thúc tệp (EOF).
+- Xử lý nội dung: Sử dụng hàm `strip_tail()` để loại bỏ ký tự `\n`, sau đó dùng `memcmp` hoặc `strcmp` để xác định sự khác biệt giữa hai bộ đệm `buf1` và `buf2`.
+- Xử lý tùy chọn: Triển khai biến toàn cục `Q_FLAG` (cho `-q`) để điều hướng logic chương trình: chỉ in ra thông báo nếu 2 file khác nhau (không in ra các dòng khác nhau).
