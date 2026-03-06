@@ -71,7 +71,7 @@ int main (int argc, char** argv) {
         }
     }
     if (cnt > 1) {
-        printf("du: too much argument\n");
+        printf("du: too many argument\n");
         exit(1);
     }
     if (cnt < 1) {

@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
         }
     }
     if (cnt > 1) {
-        printf("tree: too much argument");
+        printf("tree: too many argument");
         exit(1);
     }
     if (cnt < 1) {

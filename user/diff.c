@@ -16,7 +16,7 @@ char* fmtname (char* path) {
 void strip_tail(char* str, char* delimiter) {
     if (!strlen(str)) return;
     char* p = str+strlen(str)-1;
-    if (*p == '\n')
+    if (*p == *delimiter)
         *p = '\0';
 }
 
@@ -66,7 +66,7 @@ void diff(char* path1, char* path2) {
         strip_tail(buf1, "\n");
         strip_tail(buf2, "\n");
         if (!n1 && !n2) break;
-        if (n1 != n2 || memcmp(buf1, buf2, n1)) {
+        if (n1 != n2 || strcmp(buf1, buf2)) {
             identical = false;
             if (Q_FLAG) {
                 printf("diff: files differ\n");
@@ -84,7 +84,7 @@ void diff(char* path1, char* path2) {
         cnt++;
     }
 
-    if (identical) printf("diff: files are identical");
+    if (identical) printf("diff: files are identical\n");
     close(fd1);
     close(fd2);
 }
@@ -102,7 +102,7 @@ int main(int argc, char** argv) {
         }
     }
     if (cnt > 2) {
-        printf("diff: too much argument\n");
+        printf("diff: too many argument\n");
         exit(1);
     }
     if (cnt < 2) {
