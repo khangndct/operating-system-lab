@@ -74,17 +74,20 @@ int main (int argc, char** argv) {
         printf("du: too many argument\n");
         exit(1);
     }
-    if (cnt < 1) {
-        printf("du: missing path argument\n");
-        exit(1);
-    }
 
+    char* default_path = ".";
     char* path = NULL;
-    for (int i = 1; i < argc; i++) {
-        if (!used_argument[i-1]) {
-            path = argv[i];
+    if (cnt < 1) {
+        path = default_path;
+    }
+    else {
+        for (int i = 1; i < argc; i++) {
+            if (!used_argument[i-1]) {
+                path = argv[i];
+            }
         }
     }
+    
     if (!path) exit(1);
 
     long int res = size_of(path);
