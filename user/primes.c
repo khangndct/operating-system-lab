@@ -3,7 +3,7 @@
 
 void seive(int read_fd) {
     int prime;
-    if(read(read_fd, &prime, sizeof(int)) <= 0) {
+    if(read(read_fd, &prime, sizeof(int)) < sizeof(int)) {
         close(read_fd);
         return;
     }
@@ -15,6 +15,7 @@ void seive(int read_fd) {
         close(fd[1]);
         close(read_fd);
         seive(fd[0]);
+        exit(0);
     }
     else {
         close(fd[0]);
@@ -26,8 +27,8 @@ void seive(int read_fd) {
         }
         close(fd[1]);
         close(read_fd);
+        wait(0);
     }
-    wait(0);
 }
 
 int main () {
@@ -43,7 +44,7 @@ int main () {
             write(fd[1], &i, sizeof(int));
         }
         close(fd[1]);
+        wait(0);
     }
-    wait(0);
     exit(0);
 }
