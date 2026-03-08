@@ -57,16 +57,43 @@ void tree (char* path, int cur_level, char* is_last) {
         print_tree_item(path, cur_level, is_last);
         if (strlen(path) + 1 + DIRSIZ + 1 > sizeof(buf)) {
             printf("tree: path too long\n");
+            close(fd);
         }
         else {
             strcpy(buf, path);
             p = buf+strlen(buf);
             *p++ = '/';
-            char** names = (char**)malloc(512);
+            int cap = 16;
+            char** names = (char**)malloc(cap * sizeof(char*));
             int cnt = 0;
+            struct stat childst;
             while (read(fd, &de, sizeof(de)) == sizeof(de)) {
                 if (!de.inum || !strcmp(de.name,".") || !strcmp(de.name,"..")) 
                     continue;
+                strcpy(p, de.name);
+                if (stat(buf, &childst) < 0) {
+                    continue;
+                }
+                if (DIRONLY && childst.type != T_DIR) {
+                    continue;
+                }
+                if (cnt == cap) {
+                    int new_cap = cap * 2;
+                    char** tmp = (char**)malloc(new_cap * sizeof(char*));
+                    if (!tmp) {
+                        close(fd);
+                        for (int k = 0; k < cnt; k++) {
+                            free(names[k]);
+                        }
+                        free(names);
+                        printf("tree: out of memory\n");
+                        return;
+                    }
+                    memmove(tmp, names, cnt * sizeof(char*));
+                    free(names);
+                    names = tmp;
+                    cap = new_cap;
+                }
                 names[cnt] = (char*)malloc(strlen(de.name)+1);
                 strcpy(names[cnt], de.name);
                 cnt++;
@@ -74,8 +101,7 @@ void tree (char* path, int cur_level, char* is_last) {
             close(fd);
             for (int i = 0; i < cnt; i++) {
                 strcpy(p, names[i]);
-                if (i == cnt-1)
-                    is_last[cur_level+1] = 1;
+                is_last[cur_level+1] = (i == cnt-1);
                 tree(buf, cur_level+1, is_last);
                 free(names[i]);
             }
@@ -102,6 +128,10 @@ int main(int argc, char** argv) {
     }
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-L")) {
+            if (i + 1 >= argc) {
+                printf("tree: missing level value\n");
+                exit(1);
+            }
             for (int j = 0; j < strlen(argv[i+1]); j++) {
                 if (argv[i+1][j] < '0' || argv[i+1][j] > '9') {
                     printf("tree: invalid level");
@@ -132,8 +162,16 @@ int main(int argc, char** argv) {
     }
     if (!path) exit(0);
 
-    char* is_last = (char*)malloc(LEVEL);
-    memset(is_last, 0, LEVEL);
+    int is_last_cap = LEVEL + 2;
+    if (is_last_cap < 2) {
+        is_last_cap = 2;
+    }
+    char* is_last = (char*)malloc(is_last_cap);
+    if (!is_last) {
+        printf("tree: out of memory\n");
+        exit(1);
+    }
+    memset(is_last, 0, is_last_cap);
     tree(path, 0, is_last);
     free(is_last);
     exit(0);
